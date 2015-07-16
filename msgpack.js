@@ -153,6 +153,25 @@ exports.encode = function (value) {
 
 exports.decode = decode;
 
+exports.streamDecoder = streamDecoder;
+
+function streamDecoder(buffer, offset) {
+  this.offset = offset || 0;
+  this.view = new DataView(buffer);
+}
+
+streamDecoder.prototype.endOfStream = funtion () {
+    return (decoder.offset === buffer.byteLength);
+}
+
+streamDecoder.prototype.next = function () {
+    var decoder = new Decoder(this.view, this.offset);
+    
+    var value = decoder.parse();
+    this.offset = decoder.offset;
+    return value;
+}
+
 // https://github.com/msgpack/msgpack/blob/master/spec.md
 // we reserve extension type 0x00 to encode javascript 'undefined'
 
