@@ -158,17 +158,31 @@ exports.streamDecoder = streamDecoder;
 function streamDecoder(buffer, offset) {
   this.offset = offset || 0;
   this.view = new DataView(buffer);
+  this.currentValue = undefined;
+  this.currentValueSet = false;
 }
 
-streamDecoder.prototype.endOfStream = funtion () {
+streamDecoder.prototype.endOfStream = function () {
     return (decoder.offset === buffer.byteLength);
 }
 
-streamDecoder.prototype.next = function () {
+streamDecoder.prototype.peek = function () {
     var decoder = new Decoder(this.view, this.offset);
-    
     var value = decoder.parse();
-    this.offset = decoder.offset;
+    this.currentValue = value;
+    this.currentValueSet = true;
+    
+    return value;
+}
+
+streamDecoder.prototype.next = function () {
+    if(!this.currentValueSet) {
+        this.peek();
+    }
+    
+    var value = this.currentValue;
+    this.currentValueSet = false;
+    this.offset = this.offset + encodedSize(value);
     return value;
 }
 
